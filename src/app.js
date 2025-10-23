@@ -1,13 +1,19 @@
 const express = require("express");
 const pool = require("./config/database");
+const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Authentication Routes
 app.use('/' , authRouter);
+
+// Profile Routes
+app.use('/' , profileRouter);
 
 // Database Connection
 (async () =>{
