@@ -14,11 +14,11 @@ profileRouter.patch("/profile/change-password" , userAuthentication , async (req
 
   const user = req.user;
   const userEmailID = user.emailID;
-  const userPassword = user.password;
+  const hashPassword = user.password;
 
   const {oldPassword , newPassword , confirmPassword} = req.body;
   
-  const checkPassword = await bcrypt.compare(oldPassword , userPassword);
+  const checkPassword = await bcrypt.compare(oldPassword , hashPassword);
   if(!checkPassword){
     return res.status(400).json({error: "Incorrect password"});
   }
