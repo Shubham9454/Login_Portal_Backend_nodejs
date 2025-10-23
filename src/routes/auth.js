@@ -1,7 +1,9 @@
 const express = require("express");
-const { validatingUserInfo } = require("../utils/validation");
+const { validatingUserInfo, validatingEmailID } = require("../utils/validation");
 const pool = require("../config/database");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const jwt = require("jsonwebtoken");
 
 const authRouter = express.Router();
 
@@ -20,13 +22,12 @@ authRouter.post("/signup", async (req, res) => {
       "SELECT * FROM users WHERE emailID = ?",
       [emailID]
     );
-    
+
     if (userExists.length > 0) {
       return res.status(400).json({
-        error: "User already exists" ,
-        user: userExists[0]
+        error: "User already exists",
+        user: userExists[0],
       });
-
     }
 
     // Generate hash password
@@ -52,18 +53,76 @@ authRouter.post("/signup", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({error: "Something went wrong with error message: " + error.message});
+    res
+      .status(500)
+      .json({
+        error: "Something went wrong with error message: " + error.message,
+      });
+  }
+});
+
+// Login API
+authRouter.post("/login", async (req, res) => {
+  try {
+
+    const { emailID, password } = req.body;
+    
+    // validating the emaildID
+    validatingEmailID(emailID);
+
+    const [userExists] = await pool.query(
+      "SELECT * FROM users where emailID = ?" ,
+      [emailID]
+    );
+
+    if(userExists.length < 1){
+      return res.status(400).json({error: "User doesn't exist"});
+    }
+
+    const user = userExists[0];
+
+    // Check password
+    const validatePassword = await bcrypt.compare(password , user.password);
+    if(!validatePassword){
+      return res.status(400).json({error: "Incorrect password"});
+    }
+
+    // Generate JWT
+    const token = await jwt.sign(
+      {emailID: user.emailID , role: user.role},
+      JWT_SECRET, 
+      {expiresIn: '24h'}
+    );
+
+    res.cookie("token" , token);
+
+    res.status(200).json({
+      message: "Login Succssful !",
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailID: user.emailID,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Something went wrong: " + error.message});
+
   }
 
 });
 
-// Login API
-authRouter.post("/login" , async (req , res) =>{
-    try {
-        
-    } catch (error) {
-        
-    }
-});
+// Logout API
+authRouter.post("/logout", async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
+})
 
 module.exports = authRouter;
