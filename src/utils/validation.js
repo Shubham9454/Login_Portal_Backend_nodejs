@@ -20,6 +20,12 @@ const validatingEmailID = (emailID) => {
   }
 };
 
+const validatingPassword = (password) =>{
+  if(!validator.isStrongPassword(password)){
+    throw new Error("Please enter valid password");
+  }
+}
+
 const validateEditableData = (req) =>{
 
   const data = req.body;
@@ -37,6 +43,6 @@ const validateEditableData = (req) =>{
       throw new Error("This field is not allowed to update");
     }
 
-}
+};
 
-module.exports = {validatingUserInfo , validatingEmailID , validateEditableData};
+module.exports = {validatingUserInfo , validatingEmailID ,validatingPassword, validateEditableData};
