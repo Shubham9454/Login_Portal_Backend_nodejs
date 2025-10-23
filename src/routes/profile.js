@@ -16,9 +16,7 @@ profileRouter.patch("/profile/change-password" , userAuthentication , async (req
   const userEmailID = user.emailID;
   const userPassword = user.password;
 
-  const oldPassword = req.body.oldPassword;
-  const newPassword = req.body.newPassword;
-  const confirmPassword = req.body.confirmPassword;
+  const {oldPassword , newPassword , confirmPassword} = req.body;
   
   const checkPassword = await bcrypt.compare(oldPassword , userPassword);
   if(!checkPassword){
