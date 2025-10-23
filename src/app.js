@@ -3,6 +3,7 @@ const pool = require("./config/database");
 const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
+const adminRouter = require("./routes/admin");
 
 const app = express();
 
@@ -14,6 +15,9 @@ app.use('/' , authRouter);
 
 // Profile Routes
 app.use('/' , profileRouter);
+
+// Admin Routes
+app.use('/' , adminRouter);
 
 // Database Connection
 (async () =>{
