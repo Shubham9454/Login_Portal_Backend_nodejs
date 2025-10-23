@@ -25,7 +25,6 @@ adminRouter.delete("/admin/delete-user" , userAuthentication , async (req , res)
         validatingEmailID(deletingUserEmailID);
 
         // check whether the deleting user exists or not
-        console.log(deletingUserEmailID);
         const [deletingUser] = await pool.query(
             "SELECT * FROM users WHERE emailID = ?",
             [deletingUserEmailID]
