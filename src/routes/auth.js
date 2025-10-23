@@ -56,7 +56,7 @@ authRouter.post("/signup", async (req, res) => {
     res
       .status(500)
       .json({
-        error: "Something went wrong with error message: " + error.message,
+        error: "Something went wrong: " + error.message,
       });
   }
 });
